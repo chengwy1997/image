@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+            list-style: none;
+        }
+
+        .wrapper {
+            width: 400px;
+            height: 250px;
+            border: 1px solid red;
+            margin: 100px auto 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .wrapper .sliderPage {
+            width: 2000px;
+            height: 250px;
+            position: absolute;
+            left: 0px;
+            top: 0px;
+        }
+
+        .wrapper .sliderPage li {
+            width: 400px;
+            float: left;
+            height: 250px;
+        }
+
+        .wrapper .sliderPage li img {
+            width: 100%;
+
+            height: 100%;
+        }
+
+        .wrapper .btn {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            top: 50%;
+            margin-top: -20px;
+            color: #fff;
+            background-color: #000;
+            opacity: 0.2;
+            cursor: pointer;
+        }
+
+        .wrapper:hover .btn {
+            opacity: 1;
+        }
+
+        .leftBtn {
+            left: 15px;
+        }
+
+        .rightBtn {
+            right: 15px;
+        }
+
+        .wrapper .sliderIndex {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            bottom: 15px;
+            cursor: pointer;
+        }
+
+        .wrapper .sliderIndex span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #ccc;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .active {
+            color: #f40;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <ul class="sliderPage">
+            <li><img src="./cat1.jpg" alt=""></li>
+            <li><img src="./cat2.jpg" alt=""></li>
+            <li><img src="./cat3.jpg" alt=""></li>
+            <li><img src="./cat4.jpg" alt=""></li>
+            <li><img src="./cat1.jpg" alt=""></li>
+        </ul>
+        <div class="leftBtn btn ">&lt;</div>
+        <div class="rightBtn btn">&gt;</div>
+        <div class="sliderIndex">
+            <span class="active"></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+    <script src="./move.js"></script>
+    <script>
+        var timer = null;
+        var sliderPage = document.getElementsByClassName('sliderPage')[0];
+        var moveWidth = sliderPage.children[0].offsetWidth; //底下的div所进行移动的宽度
+        var num = sliderPage.children.length - 1;
+        var leftBtn = document.getElementsByClassName('leftBtn')[0];
+        var rightBtn = document.getElementsByClassName('rightBtn')[0]
+        var lock = true;
+        var index =0;
+        var oSpanArray =document.getElementsByClassName('sliderIndex')[0].getElementsByTagName('span');
+
+        rightBtn.onclick = function () {
+            autoMove('left->right')
+        }
+
+        leftBtn.onclick = function () {
+            autoMove('right->left')
+        }
+
+        for(var i = 0 ;i<oSpanArray.length;i++){
+            (function(j){
+                oSpanArray[i].onclick=function(){
+                    lock=false;
+                    clearTimeout(timer);
+                    index = j
+                    startMove(sliderPage,{left:-index *moveWidth  },function(){
+                        lock =true;
+                        timer =setTimeout(autoMove,1500);
+                        changeIndex(index)
+                    })
+                }
+            }(i))
+        }
+
+
+
+        function autoMove(direction) {
+            if (lock) {
+                lock = false;
+                clearTimeout(timer);
+                if (!direction || direction == 'left->right') {
+                    index++;
+                    console.log(index)
+                    startMove(sliderPage, { left: sliderPage.offsetLeft - moveWidth }, function () {
+                        if (sliderPage.offsetLeft == -num * moveWidth) {
+                            index =0;
+                            sliderPage.style.left = '0px'
+                            console.log(index)
+                        }
+                        timer = setTimeout(autoMove, 1500)
+                        lock = true;
+                        changeIndex(index)
+                    })
+                } else if (direction == 'right->left') {
+                    if (sliderPage.offsetLeft == 0) {
+                        sliderPage.style.left = -num * moveWidth + 'px';
+                        index = num
+                    }
+                    index --;
+                    startMove(sliderPage, { left: sliderPage.offsetLeft + moveWidth  }, function () {
+                        timer = setTimeout(autoMove, 1500)
+                        lock = true
+                        changeIndex(index)
+                    })
+
+                }
+            }
+
+        }
+        // 改变其索引值得范围
+    function  changeIndex(_index){
+        for(var i = 0;i<oSpanArray.length;i++){
+            oSpanArray[i].className='';
+            oSpanArray[_index].className='active'
+
+        }
+    }
+
+
+        timer = setTimeout(autoMove, 1500)
+    </script>
+</body>
+
+</html>

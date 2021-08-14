@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #box {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            left: 100px;
+            top: 100px;
+            background-color: aqua;
+        }
+    </style>
+</head>
+
+<body>
+    <div id='box'></div>
+    <script>
+        var manageCookie = {
+
+            set: function (name, vaule, date) {
+                //expire 设置的是用户的时间节点  
+                // var enddata =new data();
+                // enddata.setDate(enddata.getDate() + date)
+                // document.cookie = name +'='+vaule+" ;expires="+enddata
+                document.cookie = name + '=' + vaule + '; max-age=' + date;
+            },
+            //删除其cookie的函数
+            remove: function (name) {
+                this.set(name, '', 0)
+            },
+            get: function (name) {
+                var cookies = document.cookie.split('; ');
+                for (var i = 0; i < cookies.length; i++) {
+                    var item = cookies[i].split('=');
+                    if (item[0] == name) { //条件成立，用户名字就找到le
+                        return item[1]
+                    }
+                }
+
+            }
+        }
+
+
+
+        // 拖拽数据的应用
+
+        var drag = {
+            init: function (dom) {
+               
+                this.dom = dom;
+                this.bindEvent();
+                var l =manageCookie.get('newleft');
+                var t=manageCookie.get('newtop');
+                this.dom.style.left = l? l+'px' :'100px';
+                this.dom.style.top = t?t +'px':'100px'
+            },
+            bindEvent: function () {
+                this.dom.onmousedown = this.onmousedown.bind(this);
+            },
+            onmousedown: function (e) {
+                document.onmousemove = this.mouseMove.bind(this);
+                document.onmouseup = this.mouseUp.bind(this);
+                this.disx = e.clientX - this.dom.offsetLeft;
+                this.disy = e.clientY - this.dom.offsetTop;
+            },
+            mouseMove: function (e) {
+                this.newleft = e.clientX - this.disx;
+                this.newtop = e.clientY - this.disy;
+
+                this.dom.style.left = this.newleft + 'px';
+                this.dom.style.top = this.newtop + 'px'
+            },
+            mouseUp: function (e) {
+                document.onmousedown = null;
+                document.onmousemove = null
+
+                //需要记录下此刻盒子的信息
+                manageCookie.set('newleft',this.newleft,100000)
+                manageCookie.set('newtop',this.newtop,100000)
+            }
+        }
+        drag.init(document.getElementById('box'))
+    </script>
+</body>
+
+</html>
